@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String
+  role        String   @default("EMPLOYEE") // EMPLOYEE, MANAGER, ADMIN
+  department  String   @default("General")
+  designation String   @default("")
+  managerId   String?
+  manager     User?    @relation("ManagerRelation", fields: [managerId], references: [id])
+  reports     User[]   @relation("ManagerRelation")
+  avatarColor String   @default("#6366f1")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  goals           Goal[]
+  approvals       GoalApproval[]   @relation("ApproverRelation")
+  checkInComments CheckIn[]        @relation("ManagerCheckIn")
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+  employeeCheckIns CheckIn[]       @relation("EmployeeCheckIn")
+}
+
+model ThrustArea {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String @default("")
+  color       String @default("#6366f1")
+  goals       Goal[]
+}
+
+model GoalCycle {
+  id        String   @id @default(uuid())
+  name      String
+  year      Int
+  phase     String   @default("GOAL_SETTING") // GOAL_SETTING, Q1, Q2, Q3, Q4
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("ACTIVE") // ACTIVE, CLOSED
+  goals     Goal[]
+  createdAt DateTime @default(now())
+}
+
+model Goal {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      User     @relation(fields: [employeeId], references: [id])
+  cycleId       String
+  cycle         GoalCycle @relation(fields: [cycleId], references: [id])
+  thrustAreaId  String
+  thrustArea    ThrustArea @relation(fields: [thrustAreaId], references: [id])
+  title         String
+  description   String   @default("")
+  uom           String   // NUMERIC, PERCENTAGE, TIMELINE, ZERO
+  uomType       String   @default("MIN") // MIN (higher better), MAX (lower better)
+  target        Float
+  weightage     Float
+  status        String   @default("DRAFT") // DRAFT, SUBMITTED, APPROVED, REJECTED, REWORK
+  isLocked      Boolean  @default(false)
+  isShared      Boolean  @default(false)
+  sharedGoalId  String?  // references the primary goal if this is a shared copy
+  sharedOwner   Goal?    @relation("SharedGoals", fields: [sharedGoalId], references: [id])
+  sharedCopies  Goal[]   @relation("SharedGoals")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  approvals GoalApproval[]
+  checkIns  CheckIn[]
+}
+
+model GoalApproval {
+  id         String   @id @default(uuid())
+  goalId     String
+  goal       Goal     @relation(fields: [goalId], references: [id])
+  managerId  String
+  manager    User     @relation("ApproverRelation", fields: [managerId], references: [id])
+  status     String   @default("PENDING") // PENDING, APPROVED, REJECTED, REWORK
+  comments   String   @default("")
+  editedTarget    Float?
+  editedWeightage Float?
+  createdAt  DateTime @default(now())
+}
+
+model CheckIn {
+  id              String   @id @default(uuid())
+  goalId          String
+  goal            Goal     @relation(fields: [goalId], references: [id])
+  quarter         String   // Q1, Q2, Q3, Q4
+  achievement     Float    @default(0)
+  status          String   @default("NOT_STARTED") // NOT_STARTED, ON_TRACK, COMPLETED
+  employeeComment String   @default("")
+  managerComment  String   @default("")
+  employeeId      String
+  employee        User     @relation("EmployeeCheckIn", fields: [employeeId], references: [id])
+  managerId       String?
+  manager         User?    @relation("ManagerCheckIn", fields: [managerId], references: [id])
+  score           Float?   // computed progress score
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String   // CREATE, UPDATE, DELETE, APPROVE, REJECT, LOCK, UNLOCK
+  entityType String   // GOAL, CHECKIN, USER, CYCLE
+  entityId   String
+  oldValue   String   @default("")
+  newValue   String   @default("")
+  createdAt  DateTime @default(now())
+}
+
+model EscalationRule {
+  id            String  @id @default(uuid())
+  name          String
+  conditionType String  // GOAL_NOT_SUBMITTED, GOAL_NOT_APPROVED, CHECKIN_NOT_COMPLETED
+  daysThreshold Int     @default(7)
+  notifyRole    String  // EMPLOYEE, MANAGER, ADMIN
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // GOAL_SUBMITTED, GOAL_APPROVED, GOAL_REJECTED, CHECKIN_DUE, ESCALATION
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String   @default("")
+  createdAt DateTime @default(now())
+}
