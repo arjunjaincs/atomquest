@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (employeeId) where.employeeId = employeeId
     if (managerId) {
       const teamMembers = await prisma.user.findMany({ where: { managerId } })
-      where.employeeId = { in: teamMembers.map(u => u.id) }
+      where.employeeId = { in: teamMembers.map((u: { id: string }) => u.id) }
     }
 
     const checkIns = await prisma.checkIn.findMany({

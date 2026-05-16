@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       where.employeeId = userId
     } else if (role === 'MANAGER' && userId) {
       const teamMembers = await prisma.user.findMany({ where: { managerId: userId } })
-      where.employeeId = { in: teamMembers.map(u => u.id) }
+      where.employeeId = { in: teamMembers.map((u: { id: string }) => u.id) }
     }
     if (status) where.status = status
 

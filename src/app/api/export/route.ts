@@ -15,11 +15,13 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [{ employee: { department: 'asc' } }, { employee: { name: 'asc' } }],
     })
+    type GoalRow = (typeof goals)[number]
+    type CIRow = GoalRow['checkIns'][number]
 
     if (format === 'csv') {
       const headers = ['Employee', 'Email', 'Department', 'Thrust Area', 'Goal Title', 'UoM', 'Target', 'Weightage', 'Status', 'Q1 Achievement', 'Q1 Score', 'Q2 Achievement', 'Q2 Score', 'Q3 Achievement', 'Q3 Score', 'Q4 Achievement', 'Q4 Score']
-      const rows = goals.map(g => {
-        const getCI = (q: string) => g.checkIns.find(c => c.quarter === q)
+      const rows = goals.map((g: GoalRow) => {
+        const getCI = (q: string) => g.checkIns.find((c: CIRow) => c.quarter === q)
         return [
           g.employee?.name, g.employee?.email, g.employee?.department,
           g.thrustArea?.name, g.title, g.uom, g.target, g.weightage, g.status,
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
           getCI('Q2')?.achievement ?? '', getCI('Q2')?.score ?? '',
           getCI('Q3')?.achievement ?? '', getCI('Q3')?.score ?? '',
           getCI('Q4')?.achievement ?? '', getCI('Q4')?.score ?? '',
-        ].map(v => `"${v}"`).join(',')
+        ].map((v: unknown) => `"${v}"`).join(',')
       })
 
       const csv = [headers.join(','), ...rows].join('\n')
