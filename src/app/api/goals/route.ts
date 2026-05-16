@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Minimum weightage per goal is 10%' }, { status: 400 })
     }
 
-    const currentTotal = existingGoals.reduce((sum, g) => sum + g.weightage, 0)
+    const currentTotal = existingGoals.reduce((sum: number, g: { weightage: number }) => sum + g.weightage, 0)
     if (currentTotal + weightage > 100) {
       return Response.json({ error: `Total weightage would exceed 100%. Current: ${currentTotal}%, Adding: ${weightage}%` }, { status: 400 })
     }
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     if (action === 'SUBMIT') {
       // Validate total weightage = 100%
       const allGoals = await prisma.goal.findMany({ where: { employeeId: goal.employeeId, cycleId: goal.cycleId } })
-      const totalWeightage = allGoals.reduce((sum, g) => sum + g.weightage, 0)
+      const totalWeightage = allGoals.reduce((sum: number, g: { weightage: number }) => sum + g.weightage, 0)
       if (totalWeightage !== 100) {
         return Response.json({ error: `Total weightage must equal 100%. Current: ${totalWeightage}%` }, { status: 400 })
       }
