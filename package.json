@@ -1,15 +1,15 @@
 {
-  "name": "atomquest",
-  "version": "0.1.0",
+  "name": "goalflow",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
@@ -18,20 +18,16 @@
     "groq-sdk": "^1.2.0",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
-    "next-auth": "^4.24.14",
     "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "recharts": "^3.8.1",
-    "uuid": "^14.0.0",
-    "xlsx": "^0.18.5"
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/uuid": "^10.0.0",
     "typescript": "^5"
   }
 }

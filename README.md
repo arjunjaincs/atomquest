@@ -1,8 +1,8 @@
 # GoalFlow — AI-Powered Goal Setting & Tracking Portal
 
-> Built for **AtomQuest Hackathon 2026** by Atomberg Technologies
+> Built for the **AtomQuest Hackathon 2026** by Atomberg Technologies
 
-GoalFlow is a comprehensive Goal Setting & Tracking Portal that digitizes the entire employee goal lifecycle — from creation and alignment to quarterly check-ins and performance visibility. Powered by **Groq AI (Llama 3.3 70B)** for ultra-fast intelligent goal suggestions and insights.
+GoalFlow is a full-stack portal that digitizes the complete employee goal lifecycle — from creation and alignment to quarterly check-ins and performance analytics. Powered by **Groq AI (Llama 3.3 70B)** for ultra-fast intelligent goal refinement and insights.
 
 ---
 
@@ -15,13 +15,17 @@ GoalFlow is a comprehensive Goal Setting & Tracking Portal that digitizes the en
 ### Local Development
 
 ```bash
-# 1. Install dependencies
+# 1. Clone and install
+git clone https://github.com/YOUR_USERNAME/atomquest.git
+cd atomquest
 npm install
 
-# 2. Initialize the database
-npx prisma db push
+# 2. Set up environment
+cp .env.example .env
+# Edit .env and add your GROQ_API_KEY
 
-# 3. Seed demo data (creates 3 demo accounts)
+# 3. Initialize database + seed demo data
+npx prisma db push
 npx tsx prisma/seed.ts
 
 # 4. Start the development server
@@ -34,226 +38,143 @@ Open **http://localhost:3000** in your browser.
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@atomberg.com | password123 |
-| **Manager** | manager@atomberg.com | password123 |
-| **Employee** | employee@atomberg.com | password123 |
-
-> 💡 Use the **Quick Demo Access** buttons on the login page for one-click login.
+| **Admin** (HR Director) | admin@atomberg.com | password123 |
+| **Manager** (Eng Manager) | manager@atomberg.com | password123 |
+| **Employee** (Software Engineer) | employee@atomberg.com | password123 |
 
 ---
 
-## 🏗 Architecture
+## 🏗️ Tech Stack
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Frontend | Next.js (App Router + Turbopack) | 16.2.6 |
+| UI | React | 19.2.4 |
+| Language | TypeScript (Strict) | 5.x |
+| Styling | Vanilla CSS + CSS Variables | — |
+| Database | SQLite via Prisma ORM | 7.8.0 |
+| AI Engine | Groq SDK (Llama 3.3 70B) | 1.2.0 |
+| Charts | Recharts | 3.8.1 |
+| Auth | Custom session + bcryptjs | — |
+| Icons | Lucide React | 1.16.0 |
+| Animations | Framer Motion | 12.38.0 |
+
+---
+
+## ✅ Evaluation Criteria Alignment
+
+### 1. Functionality of the Portal
+| Feature | Status |
+|---------|--------|
+| Goal Creation (Title, Desc, UoM, Target, Weightage) | ✅ |
+| Validation (100% total, 10% min, 8 goals max) | ✅ |
+| Manager Approval (Approve / Reject / Rework) | ✅ |
+| Goal Locking post-approval | ✅ |
+| Quarterly Check-ins (Q1–Q4) | ✅ |
+| Progress Score Computation (formula-based) | ✅ |
+| CSV Export | ✅ |
+| Analytics Dashboard (charts + KPIs) | ✅ |
+| Escalation Rules | ✅ |
+| AI Copilot (Refine / Rewrite / Auto-fill) | ✅ |
+| Dark/Light Theme | ✅ |
+| Notifications | ✅ |
+| Audit Trail (immutable, human-readable) | ✅ |
+| Mobile Responsive | ✅ |
+
+### 2. Adherence to Problem Statement
+- **Phase 1** (Goal Creation & Approval): 100% complete
+- **Phase 2** (Achievement Tracking & Check-ins): 100% complete
+- **Bonus**: AI copilot, analytics, audit trail, escalation, CSV export, mobile responsive
+
+### 3. User Friendliness
+- Persistent sidebar with role-specific navigation
+- One-click demo login (Admin / Manager / Employee)
+- AI refinement appears only when needed — no AI slop
+- Inline validation, loading states, error feedback
+- Glassmorphism design, smooth animations, particle background
+- Responsive: works on desktop, tablet, and mobile
+
+### 4. Technical Robustness
+- Zero TypeScript errors in strict mode
+- Clean production build (16 static + 12 dynamic routes)
+- Try/catch on every API route with structured error responses
+- Server-side validation for all business rules
+- Immutable audit logging on every mutation
+
+### 5. Cost Optimization
+| Resource | Choice | Cost |
+|----------|--------|------|
+| Hosting | Vercel (Free) | **$0** |
+| Database | SQLite | **$0** |
+| AI | Groq Free Tier (14.4K req/day) | **$0** |
+| **Total** | | **$0/month** |
+
+---
+
+## 📐 Architecture
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for full Mermaid diagrams (system architecture, ERD, request flow).
+
+---
+
+## 🔑 Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GROQ_API_KEY` | Yes | Get from [console.groq.com](https://console.groq.com) |
+| `DATABASE_URL` | No | Defaults to SQLite `file:./dev.db` |
+
+---
+
+## 🚢 Deployment (Vercel)
+
+1. Push code to GitHub
+2. Import repository at [vercel.com](https://vercel.com)
+3. Add environment variable: `GROQ_API_KEY`
+4. Deploy — Vercel auto-runs `prisma generate && next build`
+
+> **Note**: SQLite is ephemeral on serverless. For persistent production data, migrate to PostgreSQL (Supabase/Neon free tier).
+
+---
+
+## 📊 Score Computation Formulas
+
+| UoM | Direction | Formula |
+|-----|-----------|---------|
+| Numeric | Higher is Better | `(Achievement / Target) × 100` |
+| Numeric | Lower is Better | `(Target / Achievement) × 100` |
+| Percentage | — | `Achievement` (direct) |
+| Timeline | — | `On-time = 100, Late = partial` |
+| Zero-Based | — | `Achievement == 0 ? 100 : 0` |
+
+---
+
+## 📁 Project Structure
 
 ```
-Next.js 16 (App Router + TypeScript)
-├── Frontend:  React 19 + CSS Custom Properties (Dark/Light themes)
-├── Backend:   Next.js API Routes (RESTful)
-├── AI:        Groq API (Llama 3.3 70B Versatile) — sub-2s inference
-├── Database:  SQLite via Prisma ORM + better-sqlite3 adapter
-├── Charts:    Recharts
-├── Icons:     Lucide React
-└── Animation: CSS Animations + Canvas (Particle Background)
-```
-
-### File Structure
-```
-src/
-├── app/                    # Next.js App Router pages + API routes
-│   ├── api/               # 12 API endpoints
-│   │   ├── ai/            # Gemini AI suggestions
-│   │   ├── analytics/     # Org-wide analytics
-│   │   ├── audit/         # Audit trail
-│   │   ├── auth/          # Authentication
+atomquest/
+├── prisma/
+│   ├── schema.prisma      # Database schema (13 models)
+│   └── seed.ts            # Demo data seeder
+├── src/
+│   ├── app/
+│   │   ├── api/           # 13 API routes
+│   │   ├── dashboard/     # Role-based dashboard
+│   │   ├── goals/         # Goal CRUD + AI refine
 │   │   ├── checkins/      # Quarterly check-ins
-│   │   ├── cycles/        # Goal cycles
-│   │   ├── dashboard/     # Dashboard stats
-│   │   ├── escalation/    # Escalation rules
-│   │   ├── export/        # CSV export
-│   │   ├── goals/         # Goal CRUD + approval workflow
-│   │   ├── notifications/ # Notifications
-│   │   ├── thrust-areas/  # Thrust area lookup
-│   │   └── users/         # User management
-│   ├── analytics/         # Analytics dashboard page
-│   ├── approvals/         # Manager approval page
-│   ├── audit/             # Audit trail page
-│   ├── checkins/          # Check-in page
-│   ├── cycles/            # Cycle management page
-│   ├── dashboard/         # Main dashboard
-│   ├── escalation/        # Escalation rules page
-│   ├── goals/             # Goal management page
-│   ├── login/             # Login page
-│   ├── notifications/     # Notifications page
-│   ├── users/             # User management page
-│   ├── globals.css        # Complete design system
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Landing page
-├── components/            # Reusable components
-│   ├── Header.tsx         # Top header bar
-│   ├── ParticleBackground.tsx  # Animated canvas background
-│   ├── Providers.tsx      # Context providers wrapper
-│   └── Sidebar.tsx        # Navigation sidebar
-├── context/               # React contexts
-│   ├── AuthContext.tsx     # Authentication state
-│   └── ThemeContext.tsx    # Dark/Light theme state
-├── lib/
-│   └── prisma.ts          # Database client singleton
-└── types/
-    └── index.ts           # TypeScript types + scoring functions
+│   │   ├── approvals/     # Manager approval workflow
+│   │   ├── analytics/     # Charts + insights
+│   │   ├── audit/         # Immutable audit trail
+│   │   └── ...            # notifications, cycles, users, escalation
+│   ├── components/        # Sidebar, Header, ParticleBackground
+│   ├── context/           # AuthContext, ThemeContext
+│   ├── lib/               # Prisma client setup
+│   └── types/             # TypeScript types + score computation
+├── ARCHITECTURE.md        # Mermaid architecture diagrams
+├── SUBMISSION.md          # Hackathon submission links
+└── README.md              # This file
 ```
 
 ---
 
-## ⚙️ Configuration
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```env
-# Database (SQLite for local, PostgreSQL for production)
-DATABASE_URL="file:./dev.db"
-
-# Auth secret (change in production)
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Groq AI (optional - fallback suggestions work without it)
-GROQ_API_KEY="your-groq-api-key-here"
-```
-
-### Getting a Groq API Key
-1. Go to https://console.groq.com/keys
-2. Click "Create API Key"
-3. Copy the key and paste it in `.env` as `GROQ_API_KEY`
-4. Model used: `llama-3.3-70b-versatile` (ultra-fast, free tier: 30 RPM)
-
-> ⚠️ The app works fully without the Groq key — AI features will use intelligent fallback suggestions.
-
----
-
-## 📋 Features — BRD Compliance Matrix
-
-### Phase 1: Goal Creation & Approval ✅
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| Employee creates goals with Thrust Area, Title, Description | ✅ | `/goals` page with creation modal |
-| UoM: Numeric, %, Timeline, Zero-based | ✅ | Dropdown selection in goal form |
-| Set Targets and Weightage per goal | ✅ | Input fields with validation |
-| Total weightage = 100% validation | ✅ | Server-side validation in `/api/goals` |
-| Min weightage per goal = 10% | ✅ | Server-side validation |
-| Max 8 goals per employee | ✅ | Server-side validation |
-| Manager (L1) approval workflow | ✅ | `/approvals` page with Approve/Reject/Rework |
-| Inline editing during approval | ✅ | Manager can edit targets/weightage |
-| Goals locked after approval | ✅ | `isLocked` flag, enforced in API |
-| Shared Goals | ✅ | Schema supports shared goals via `sharedGoalId` |
-
-### Phase 2: Achievement Tracking & Check-ins ✅
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| Quarterly check-in interface | ✅ | `/checkins` page with Q1-Q4 tabs |
-| Log Achievement vs Target | ✅ | Inline form per goal |
-| Status: Not Started / On Track / Completed | ✅ | Dropdown selection |
-| Manager check-in review | ✅ | Manager view in `/checkins` |
-| Manager comments | ✅ | Comment field in check-in review |
-| Score computation (Min/Max/Timeline/Zero) | ✅ | `computeScore()` in types/index.ts |
-
-### Reporting & Governance ✅
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| Achievement report (CSV export) | ✅ | `/api/export?format=csv` |
-| Completion dashboard | ✅ | `/analytics` with charts |
-| Audit trail | ✅ | `/audit` with filterable logs |
-
-### Bonus Features ✅
-| Feature | Status | Implementation |
-|---------|--------|----------------|
-| AI Goal Writing Assistant | ✅ | Gemini API integration in goal creation |
-| Analytics Module | ✅ | Recharts: pie, bar, horizontal bar charts |
-| Escalation Rules | ✅ | `/escalation` with CRUD + toggle |
-| Notifications | ✅ | In-app notifications with unread count |
-| Dark/Light Mode | ✅ | Theme toggle with CSS custom properties |
-| Audit Trail | ✅ | Full action logging with user attribution |
-
----
-
-## 💰 Cost Optimization
-
-| Component | Cost | Details |
-|-----------|------|---------|
-| **Hosting** | $0 | Vercel free tier (100GB bandwidth) |
-| **Database** | $0 | SQLite (local) / Supabase free tier (500MB) |
-| **AI** | $0 | Groq API free tier (30 RPM, Llama 3.3 70B) |
-| **Domain** | $0 | Vercel provides *.vercel.app subdomain |
-| **Total** | **$0** | Complete production deployment at zero cost |
-
-### Optimization Strategies
-- **SQLite in development** — zero config, instant startup
-- **Static page generation** — landing + login pages are pre-rendered
-- **Client-side auth** — no session server needed
-- **Smart AI fallbacks** — app works fully without API calls
-- **CSS-only theming** — no runtime JS for dark/light mode
-
----
-
-## 🚢 Deployment
-
-### Vercel (Recommended)
-
-For Vercel deployment, switch to PostgreSQL:
-
-1. Create a free PostgreSQL database on [Supabase](https://supabase.com), [Neon](https://neon.tech), or [Vercel Postgres](https://vercel.com/storage/postgres)
-
-2. Update `prisma/schema.prisma`:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-   }
-   ```
-
-3. Update `prisma.config.ts` with your PostgreSQL URL
-
-4. Update `src/lib/prisma.ts` to use `@prisma/adapter-pg` instead of `@prisma/adapter-better-sqlite3`
-
-5. Deploy:
-   ```bash
-   npx vercel
-   ```
-
-6. Set environment variables in Vercel dashboard
-
-### Alternative: Self-Hosted
-
-```bash
-npm run build
-npm start
-```
-
----
-
-## 🔐 Security
-
-- Passwords hashed with **bcrypt** (10 rounds)
-- Role-based access control on all API routes
-- Input validation on all form submissions
-- SQL injection prevention via Prisma ORM
-- XSS prevention via React's default escaping
-- Audit trail logs all sensitive actions
-
----
-
-## 🎨 Design System
-
-The app uses CSS Custom Properties for theming with 2 complete color schemes:
-- **Dark Mode**: Deep navy/purple with glassmorphism effects
-- **Light Mode**: Clean white with subtle shadows
-
-Key design elements:
-- **Inter** font (Google Fonts) for premium typography
-- **Particle network** animated background on landing/login
-- **Micro-animations** with CSS keyframes (fadeIn, slideIn, pulse)
-- **Glass morphism** cards with backdrop blur
-- **Color-coded** thrust areas and status badges
-
----
-
-*Built with ❤️ for AtomQuest Hackathon 2026*
+*Built with ❤️ for the AtomQuest Hackathon 2026*
